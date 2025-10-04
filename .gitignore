@@ -1,0 +1,10 @@
+**venv
+**__pycache__
+*.pyc
+.env
+.env.*
+.env.relay
+.env.local
+.env.production
+.env.test
+docker-data/

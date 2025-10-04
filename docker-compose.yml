@@ -1,0 +1,56 @@
+# This compose file spins up a local instance of the
+# docker-mailserver project alongside a simple Streamlit
+# application.  The mailserver exposes SMTP ports for
+# outbound mail while the Streamlit service provides a web
+# interface for sending plain‑text emails.  See the README
+# for detailed instructions on usage and caveats.
+
+services:
+  # Lightweight local SMTP receiver implemented in this repo.
+  # It accepts mail on port 25 (no authentication) and stores
+  # messages under /app/mail_store inside the container.  A tiny
+  # HTTP API on port 8025 lets you inspect received messages.
+  smtp_relay:
+    build:
+      context: ./smtp_relay
+      dockerfile: Dockerfile
+    container_name: smtp_relay
+    ports:
+      - "25:25"
+      - "8025:8025"
+    volumes:
+      - ./docker-data/mail-data:/app/mail_store
+    environment:
+      # Optional: configure an outbound authenticated relay to send mail
+      # to external MX servers. If set, smtp_relay will attempt to use this
+      # relay first instead of connecting directly to recipient MX hosts.
+      SMTP_RELAY_SERVER: "smtp.gmail.com"  # e.g. smtp.gmail.com
+      SMTP_RELAY_PORT: "587"
+      SMTP_RELAY_USERNAME: "${SMTP_RELAY_USERNAME}"
+      SMTP_RELAY_PASSWORD: "${SMTP_RELAY_PASSWORD}"
+      SMTP_RELAY_STARTTLS: "1"
+    restart: unless-stopped
+
+  # The Streamlit web application.  It builds from the
+  # streamlit_app directory and reads its configuration
+  # (SMTP server, credentials and default recipient) from
+  # environment variables defined here.  When you point
+  # your browser at http://localhost:8501 you will see
+  # a simple form for sending an email.
+  streamlit:
+    build:
+      context: ./streamlit_app
+      dockerfile: Dockerfile
+    container_name: streamlit_app
+    depends_on:
+      - smtp_relay
+    environment:
+      # Point the Streamlit app at the local, no-auth SMTP relay.
+      SMTP_SERVER: smtp_relay
+      SMTP_PORT: "25"
+      SMTP_NO_AUTH: "1"
+      SENDER_EMAIL: notifier@local.test
+      DEFAULT_RECIPIENT: deothe1@gmail.com
+    ports:
+      - "8501:8501"
+    restart: unless-stopped
