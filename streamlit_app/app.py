@@ -1,17 +1,8 @@
 """Streamlit front-end for sending email via docker-mailserver.
 
-This application provides a simple web interface for sending
-plain text emails through a locally hosted SMTP relay.  It
-relies on environment variables for configuration (see the
-accompanying ``Dockerfile`` and ``docker-compose.yml`` for
-details) and uses helper functions from :mod:`email_utils` to
-construct and dispatch messages.
-
 Running this script outside of Docker is also supported as
 long as the necessary environment variables are defined.
 """
-
-from __future__ import annotations
 
 import os
 import streamlit as st
