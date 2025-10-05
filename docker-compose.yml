@@ -50,7 +50,7 @@ services:
       SMTP_PORT: "25"
       SMTP_NO_AUTH: "1"
       SENDER_EMAIL: notifier@local.test
-      DEFAULT_RECIPIENT: deothe1@gmail.com
+      DEFAULT_RECIPIENT: domenick.dobbs@gmail.com
     ports:
       - "8501:8501"
     restart: unless-stopped
